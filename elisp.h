@@ -26,6 +26,7 @@ extern emacs_value Qcursor_type;
 extern emacs_value Qemacs_major_version;
 extern emacs_value Qvterm_line_wrap;
 extern emacs_value Qrear_nonsticky;
+extern emacs_value Qline_height;
 extern emacs_value Qvterm_prompt;
 
 // Emacs functions

@@ -345,7 +345,13 @@ static void refresh_lines(Term *term, emacs_env *env, int start_row,
 
         if (is_eol(term, end_col, i, j)) {
           /* This cell is EOL if this and every cell to the right is black */
-          PUSH_BUFFER('\n');
+          emacs_value text = render_text(env, term, buffer, length, &lastCell);
+          insert(env, text);
+          length = 0;
+
+          text = render_newline(env, term, false);
+          insert(env, text);
+
           newline = 1;
           break;
         }
@@ -385,7 +391,7 @@ static void refresh_lines(Term *term, emacs_env *env, int start_row,
       emacs_value text = render_text(env, term, buffer, length, &lastCell);
       insert(env, text);
       length = 0;
-      text = render_fake_newline(env, term);
+      text = render_newline(env, term, true);
       insert(env, text);
     }
   }
@@ -838,15 +844,18 @@ static emacs_value render_prompt(emacs_env *env, emacs_value text) {
   return text;
 }
 
-static emacs_value render_fake_newline(emacs_env *env, Term *term) {
+static emacs_value render_newline(emacs_env *env, Term *term, bool is_fake) {
 
   emacs_value text;
   text = env->make_string(env, "\n", 1);
 
   emacs_value properties;
 
-  properties =
-      list(env, (emacs_value[]){Qvterm_line_wrap, Qt, Qrear_nonsticky, Qt}, 4);
+  if (is_fake)
+    properties =
+      list(env, (emacs_value[]){Qvterm_line_wrap, Qt, Qrear_nonsticky, Qt, Qline_height, env->make_integer(env, 17)}, 6);
+  else
+    properties = list(env, (emacs_value[]){Qrear_nonsticky, Qt, Qline_height, env->make_integer(env, 17)}, 4);
 
   add_text_properties(env, text, properties);
 
@@ -1462,6 +1471,8 @@ int emacs_module_init(struct emacs_runtime *ert) {
       env->make_global_ref(env, env->intern(env, "vterm-line-wrap"));
   Qrear_nonsticky =
       env->make_global_ref(env, env->intern(env, "rear-nonsticky"));
+  Qline_height =
+      env->make_global_ref(env, env->intern(env, "line-height"));
   Qvterm_prompt = env->make_global_ref(env, env->intern(env, "vterm-prompt"));
 
   Qface = env->make_global_ref(env, env->intern(env, "font-lock-face"));
