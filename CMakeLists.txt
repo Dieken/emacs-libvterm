@@ -73,7 +73,8 @@ else()
 
   ExternalProject_add(libvterm
     GIT_REPOSITORY https://github.com/Sbozzolo/libvterm-mirror.git
-    GIT_TAG 64f1775952dbe001e989f2ab679563b54f2fca55
+    GIT_TAG libvterm
+    GIT_SHALLOW ON
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${LIBVTERM_BUILD_COMMAND} "CFLAGS='-fPIC'" "LDFLAGS='-static'"
     BUILD_IN_SOURCE ON
